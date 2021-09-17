@@ -16,7 +16,7 @@ export default function InputZone(props) {
         onKeyPress={props.handleSubmit}
         onChange={props.handleChange}
       />
-      <IconButton className="iconButton" aria-label="Search">
+      <IconButton onClick={()=>props.handleSubmit(null,true)} className="iconButton" aria-label="Search">
         <SendIcon />
       </IconButton>
     </Paper>

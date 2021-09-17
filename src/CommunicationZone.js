@@ -5,37 +5,29 @@ import ContactWindow from './ContactWindow';
 import InputZone from './InputZone';
 
 const CommunicationZone = () => {
-  const [state, setState] = React.useState({
-    value: '',
-    disposable: '',
-    history: ['How can I help?'],
-  });
-  const stateRef = React.useRef(state);
+
+  const [value, setValue] = React.useState('')
+  const [history, setHistory] = React.useState([{text:'How can I help You?', fromUser: false}])
+  
 
   function handleChange(event) {
-    setState({
-      ...state,
-      value: event.target.value,
-    });
+    setValue(event.target.value)
   }
 
-  function handleSubmit(event) {
-    if (event.key === 'Enter') {
-      const newState = {
-        ...state,
-        value: '',
-        disposable: event.target.value,
-        history: [...state.history, event.target.value],
-      };
-      setState(newState);
-      stateRef.current = newState;
+  function handleSubmit( event, clicked) {
+    if ((clicked || event.key === 'Enter') && value.trim().length>0) {
 
-      setTimeout(dialogueEngine, 3000);
+      const _currentValue=value;
+      setValue('');
+
+      // setHistory([...history,{text:_currentValue, fromUser: true}])
+      setHistory(oldVal=>[...oldVal,{text:_currentValue, fromUser: true}])
+      setTimeout(()=>dialogueEngine(_currentValue), 3000);
     }
-    cleanHistory();
+    // cleanHistory();
   }
 
-  function dialogueEngine() {
+  function dialogueEngine(inputValue) {
     const answersBasic = [
       'can you elaborate?',
       'and why do you believe that is so?',
@@ -56,55 +48,29 @@ const CommunicationZone = () => {
       'that does not sound like a bug',
     ];
 
-    if (stateRef.current.disposable.length <= 7) {
-      let response =
-        answersAdjust[Math.floor(Math.random() * answersAdjust.length)];
-      setState({
-        ...stateRef.current,
-        history: [...stateRef.current.history, response],
-      });
-    } else if (
-      stateRef.current.history.length <= 3 &&
-      stateRef.current.disposable.length > 6
-    ) {
-      let response =
-        answersBasic[Math.floor(Math.random() * answersBasic.length)];
-      setState({
-        ...stateRef.current,
-        history: [...stateRef.current.history, response],
-      });
-    } else if (stateRef.current.history.length >= 4) {
-      let response =
-        answersAdvanced[Math.floor(Math.random() * answersAdvanced.length)];
-      setState({
-        ...stateRef.current,
-        history: [...stateRef.current.history, response],
-      });
-    }
-  }
+    let response='';
 
-  function cleanHistory() {
-    const tempHistory = state.history;
-    let newHistory = [];
-    if (state.history.length > 12) {
-      tempHistory.shift();
-      tempHistory.shift();
-      newHistory = tempHistory;
-      setState({
-        ...state,
-        history: newHistory,
-      });
+    if (inputValue.length <= 7) {
+      response = answersAdjust[Math.floor(Math.random() * answersAdjust.length)];
+    } else if ( history.length <= 3 && inputValue.length > 6 ) {
+      response = answersBasic[Math.floor(Math.random() * answersBasic.length)];
+    } else if ( history.length >= 4) {
+      response = answersAdvanced[Math.floor(Math.random() * answersAdvanced.length)];
     }
+
+    // setHistory([...history,{text: response, fromUser: false}])
+    setHistory(oldVal=>[...(oldVal.length>12 ? oldVal.slice(-12) : oldVal), {text: response, fromUser: false}])
+
   }
 
   return (
     <div className="chatHost innerShadow">
       <ContactWindow />
-      <ChatZone chatItem={state.history} />
+      <ChatZone chatItems={history} />
       <InputZone
         handleChange={handleChange}
         handleSubmit={handleSubmit}
-        value={state.value}
+        value={value}
       />
     </div>
   );
