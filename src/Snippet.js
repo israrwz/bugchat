@@ -3,8 +3,6 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import './App.css';
 
-// BUG In line 12
-
 export default function Snippet(props) {
   return (
     <div>
